@@ -12,9 +12,10 @@ function makeid(length) {
 
 const mainController = {
   clockin: (req, res) => {
-    console.log("Chegou no controller: ", req);
+    console.log(req.query.company_code)
     let { company_code: companyCode, employee_code: employeeCode } = req.query
     let checkinCode = makeid(6);
+    console.log("Chegou no controller: ", companyCode, employeeCode, checkinCode);
     clockin.record(companyCode, employeeCode, checkinCode);
     res.send("Passou a cobra")
   },

@@ -13,6 +13,8 @@ server.use(
   }
 );
 
+server.use(restify.plugins.queryParser());
+
 server.get("/bank/:company/:employee", mainController.listAll);
 
 server.get("/overdue/:company/:employee",mainController.listOverdue);
