@@ -15,9 +15,9 @@ server.use(
 
 server.use(restify.plugins.queryParser());
 
-server.get("/bank/:company/:employee", mainController.listAll);
+server.get("/bank", mainController.listAll);
 
-server.get("/overdue/:company/:employee",mainController.listOverdue);
+server.get("/edit",mainController.edit);
 
 server.get("/clockin", mainController.clockin);
 

@@ -12,18 +12,43 @@ function makeid(length) {
 
 const mainController = {
   clockin: (req, res) => {
-    console.log(req.query.company_code)
-    let { company_code: companyCode, employee_code: employeeCode } = req.query
+    let { company_code: companyCode, employee_code: employeeCode, timestamp: timestamp } = req.query
     let checkinCode = makeid(6);
-    console.log("Chegou no controller: ", companyCode, employeeCode, checkinCode);
-    clockin.record(companyCode, employeeCode, checkinCode);
-    res.send("Passou a cobra")
+    console.log("Chegou no controller: ", companyCode, employeeCode, checkinCode, timestamp);
+    clockin.record(employeeCode, checkinCode, timestamp);
   },
-  listOverdue: (req, res) => {
-
+  edit: (req, res) => {
+    let { company_code: companyCode, employee_code: employeeCode } = req.query
+    clockin.edit(companyCode, employeeCode)
   },
-  listAll: (req, res) => {
+  listAll: async (req, res) => {
+    let { company_code: companyCode, employee_code: employeeCode } = req.query
 
+    let resultCredentialChecking = await clockin.checkCredentials(companyCode, employeeCode);
+    console.log("voltou pro controlador da checagem: ", resultCredentialChecking);
+
+    if (resultCredentialChecking) {
+
+      let resultListAll = await clockin.listAll(employeeCode);
+      // console.log("voltou pro controlador da listagem de todos: ", resultListAll);
+
+      let allFoundCheckind = [];
+
+      resultListAll.forEach((item) => {
+        let fieldsArray = item._fields
+        fieldsArray.forEach((node) => {
+          allFoundCheckind.push(node.properties)
+        })
+      })
+
+      console.log(allFoundCheckind)
+
+      res.send(allFoundCheckind)
+      return allFoundCheckind
+    }
+
+    res.send("error: wrong credentials")
+    return "error: wrong credentials"
   }
 };
 
