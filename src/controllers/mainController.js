@@ -11,26 +11,38 @@ function makeid(length) {
 }
 
 const mainController = {
-  clockin: (req, res) => {
+  clockin: async (req, res) => {
     let { company_code: companyCode, employee_code: employeeCode, timestamp: timestamp } = req.query
-    let checkinCode = makeid(6);
-    console.log("Chegou no controller: ", companyCode, employeeCode, checkinCode, timestamp);
-    clockin.record(employeeCode, checkinCode, timestamp);
-  },
-  edit: (req, res) => {
-    let { company_code: companyCode, employee_code: employeeCode } = req.query
-    clockin.edit(companyCode, employeeCode)
-  },
-  listAll: async (req, res) => {
-    let { company_code: companyCode, employee_code: employeeCode } = req.query
 
     let resultCredentialChecking = await clockin.checkCredentials(companyCode, employeeCode);
     console.log("voltou pro controlador da checagem: ", resultCredentialChecking);
 
     if (resultCredentialChecking) {
+    
+      let checkinCode = makeid(6);
+      console.log("Chegou no controller: ", companyCode, employeeCode, checkinCode, timestamp);
+      clockin.record(employeeCode, checkinCode, timestamp);
+
+      res.send(200)
+    
+    } else {
+
+      res.send(401)
+
+    }
+  },
+  edit: async (req, res) => {
+    let { company_code: companyCode, employee_code: employeeCode } = req.query
+  },
+  listAll: async (req, res) => {
+    let { company_code: companyCode, employee_code: employeeCode } = req.query
+
+    let resultCredentialChecking = await clockin.checkCredentials(companyCode, employeeCode);
+    console.log("voltou pro controlador da checagem no listAll: ", resultCredentialChecking);
+
+    if (resultCredentialChecking) {
 
       let resultListAll = await clockin.listAll(employeeCode);
-      // console.log("voltou pro controlador da listagem de todos: ", resultListAll);
 
       let allFoundCheckind = [];
 
@@ -46,9 +58,20 @@ const mainController = {
       res.send(allFoundCheckind)
       return allFoundCheckind
     }
-
-    res.send("error: wrong credentials")
-    return "error: wrong credentials"
+    res.send(401)
+  },
+  delete: async (req, res) => {
+    let { company_code: companyCode, employee_code: employeeCode, checkin_code: checkinCode } = req.query
+    let resultCredentialChecking = await clockin.checkCredentials(companyCode, employeeCode);
+      if (resultCredentialChecking) {
+        await clockin.delete(checkinCode);
+        if (await clockin.isCheckinRegistered(checkinCode)) {
+          res.send(500)
+        }
+        res.send(200)
+      } else {
+        res.send(401)
+      }
   }
 };
 

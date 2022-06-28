@@ -15,11 +15,13 @@ server.use(
 
 server.use(restify.plugins.queryParser());
 
-server.get("/bank", mainController.listAll);
+server.get("/bank", mainController.listAll); // READ (ALL)
 
-server.get("/edit",mainController.edit);
+server.get("/edit", mainController.edit); // UPDATE (ONE)
 
-server.get("/clockin", mainController.clockin);
+server.get("/delete", mainController.delete) // DELETE (ONE)
+
+server.get("/clockin", mainController.clockin); // CREATE (ONE)
 
 server.listen(8080, function() {
   console.log('%s listening at %s', server.name, server.url);

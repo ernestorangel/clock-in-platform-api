@@ -17,26 +17,37 @@ const checkInTime = {
     session.close();
     driver.close();
 
-    if (result !== undefined) {
+    console.log("resultado da checagem: ", result.records)
+
+    if (result.records.length) {
       return true
     }
 
     return false
   },
-  typeValidator: async (employee_code) => {
+  isCheckinRegistered: async (checkin_code) => {
+    console.log('caiu no list delete')
     const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
     driver.verifyConnectivity().then((result) =>  console.log(result));
     const session = driver.session();
 
     let result = await session.run(
-      `MATCH (checkin:CHECK_IN_TIME)`,
+      `MATCH (checkin:CHECK_IN_TIME {code: $checkinCode}) RETURN checkin`,
       {
-        
+        checkinCode: checkin_code
       }
     )
 
     session.close();
     driver.close();
+
+    
+    if (result.records.length) {
+      return true
+    }
+
+    return false
+
   },
   record: async (employee_code, checkin_code, timestamp) => {
     const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
@@ -80,8 +91,24 @@ const checkInTime = {
 
     return result.records
   },
-  listOverdue: async (company_code, employee_code) => {
-    console.log('caiu no list overdue')
+  delete: async (checkin_code) => {
+    console.log('caiu no list delete')
+    const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
+    driver.verifyConnectivity().then((result) =>  console.log(result));
+    const session = driver.session();
+
+    await session.run(
+      `MATCH (checkin:CHECK_IN_TIME {code: $checkinCode}) DETACH DELETE checkin`,
+      {
+        checkinCode: checkin_code
+      }
+    )
+
+    session.close();
+    driver.close();
+  },
+  update: async (checkin_code) => {
+    console.log('caiu no list update')
   }
 }
 
