@@ -61,17 +61,12 @@ const mainController = {
     res.send(401)
   },
   delete: async (req, res) => {
-    let { company_code: companyCode, employee_code: employeeCode, checkin_code: checkinCode } = req.query
-    let resultCredentialChecking = await clockin.checkCredentials(companyCode, employeeCode);
-      if (resultCredentialChecking) {
-        await clockin.delete(checkinCode);
-        if (await clockin.isCheckinRegistered(checkinCode)) {
-          res.send(500)
-        }
-        res.send(200)
-      } else {
-        res.send(401)
-      }
+    let { checkin_code: checkinCode } = req.query
+    await clockin.delete(checkinCode);
+    if (await clockin.isCheckinRegistered(checkinCode)) {
+      res.send(500)
+    }
+    res.send(200)
   }
 };
 
