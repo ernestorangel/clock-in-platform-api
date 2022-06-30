@@ -3,7 +3,6 @@ const neo4j = require('neo4j-driver');
 const checkInTime = {
   checkCredentials: async (company_code, employee_code) => {
     const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
-    driver.verifyConnectivity().then((result) =>  console.log(result));
     const session = driver.session();
 
     let result = await session.run(
@@ -17,16 +16,10 @@ const checkInTime = {
     session.close();
     driver.close();
 
-    console.log("resultado da checagem: ", result.records)
-
-    if (result.records.length) {
-      return true
-    }
-
-    return false
+    if (result.records.length) return true
+    else return false
   },
   isCheckinRegistered: async (checkin_code) => {
-    console.log('caiu no list delete')
     const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
     driver.verifyConnectivity().then((result) =>  console.log(result));
     const session = driver.session();
@@ -40,18 +33,15 @@ const checkInTime = {
 
     session.close();
     driver.close();
-
     
-    if (result.records.length) {
-      return true
-    }
-
-    return false
-
+    if (result.records.length) return true
+    else return false
+  },
+  isTimestamp: async (checkin_code, timestamp) => {
+    console.log('caiu no isTimestamp')
   },
   record: async (employee_code, checkin_code, timestamp) => {
     const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
-    driver.verifyConnectivity().then((result) =>  console.log(result));
     const session = driver.session();
 
     await session.run(
@@ -74,9 +64,7 @@ const checkInTime = {
     driver.close();
   },
   listAll: async (employee_code) => {
-    console.log('caiu no list all')
     const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
-    driver.verifyConnectivity().then((result) =>  console.log(result));
     const session = driver.session();
 
     let result = await session.run(
@@ -92,9 +80,7 @@ const checkInTime = {
     return result.records
   },
   delete: async (checkin_code) => {
-    console.log('caiu no list delete')
     const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
-    driver.verifyConnectivity().then((result) =>  console.log(result));
     const session = driver.session();
 
     await session.run(
@@ -107,8 +93,22 @@ const checkInTime = {
     session.close();
     driver.close();
   },
-  update: async (checkin_code) => {
-    console.log('caiu no list update')
+  update: async (checkin_code, new_timestamp) => {
+    const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('admin_connect', '3mo7'));
+    const session = driver.session();
+
+    let result = await session.run(
+      `MATCH (checkin:CHECK_IN_TIME {code: $checkinCode}) SET checkin.timestamp = $newTimestamp RETURN checkin`,
+      {
+        checkinCode: checkin_code,
+        newTimestamp: new_timestamp
+      }
+    )
+
+    session.close();
+    driver.close();
+    
+    return result
   }
 }
 
